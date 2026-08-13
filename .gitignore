@@ -1,0 +1,10 @@
+*.bak
+*.old
+*.log
+*.sqlite
+*.db
+*.key
+*.pem
+.env
+config/local.php
+.DS_Store
