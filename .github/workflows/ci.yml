@@ -1,4 +1,30 @@
 name: validate
 on:
-  workflow_dispatch:
-jobs: {}
+  push:
+  pull_request:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bash syntax
+        run: |
+          find . -type f -name '*.sh' -print0 | xargs -0 -n1 bash -n
+      - name: PHP lint
+        run: |
+          find . -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: JavaScript syntax
+        run: |
+          find web/assets -type f -name '*.js' ! -path '*/vendor/*' -print0 | xargs -0 -n1 node --check
+      - name: Render generic fixture
+        run: |
+          mkdir -p /tmp/cert/web/api /tmp/cert/web/assets/vendor
+          cp -a web/. /tmp/cert/web/
+          cp config/certificado-config.php /tmp/cert/web/certificado-config.php
+          php tools/render.php --root=/tmp/cert/web --site-config=tests/fixtures/site.php --data-dir=/var/lib/xlx-certificates --secret-file=/etc/xlx-certificates/secret --campaign-pack=portable
+          find /tmp/cert/web -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+          ! grep -REn '\{\{[A-Z0-9_]+\}\}' /tmp/cert/web --exclude=qrcode.min.js
+          grep -Fq 'XLX123 Test' /tmp/cert/web/certificado-view.php
+          grep -Fq 'https://xlx123.example.org/' /tmp/cert/web/api/certificado.php
+      - name: Source audit
+        run: bash validate.sh
