@@ -12,7 +12,7 @@ section(){ printf '\n===========================================================
 cert_detect_dashboard(){
   local explicit="${1:-}" candidates=() d
   if [ -n "$explicit" ]; then [ -d "$explicit" ] || fatal "Dashboard não encontrado: $explicit"; printf '%s' "$explicit"; return; fi
-  for d in /var/www/html/xlx-dashboard /var/www/html/xlxd-novo; do [ -d "$d" ] && candidates+=("$d"); done
+  for d in /var/www/html/xlx-dashboard /var/www/html/xlxd; do [ -d "$d" ] && candidates+=("$d"); done
   [ "${#candidates[@]}" -eq 1 ] || fatal "Informe --dashboard-dir=DIR para evitar ambiguidade."
   printf '%s' "${candidates[0]}"
 }
